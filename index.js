@@ -34,10 +34,9 @@ client.on("messageCreate", async (message) => {
   ) {
     
 
-    console.log(message);
     // get the file's URL
     const file = message.attachments.first()?.url;
-    if (!file) return console.log("No attached file found");
+    if (!file) return logError("No file found", message);
 
     try {
       const statusMessage = await message.channel.send(
@@ -58,10 +57,7 @@ client.on("messageCreate", async (message) => {
       const contentDisposition = response.headers.get("Content-Disposition");
       const filenameMatch = contentDisposition.match(/filename=["]*(.+\..{3})/);
       const filename = filenameMatch ? filenameMatch[1] : "audio.m4a";
-      console.log(response.headers);
-      console.log(`filenameMatch: ${filenameMatch}`);
-      console.log(`filenameMatch[1]: ${filenameMatch[1]}`);
-      console.log(`filename: ${filename}`);
+
       
 
       // take the response stream and read it to completion
@@ -81,7 +77,7 @@ client.on("messageCreate", async (message) => {
             statusMessage.edit("Transcribing the file...")
             const text = await transcribe(mp3Filename, message);
 
-            console.log(`text has been transcribed: ${text}`);
+            console.log(`text has been transcribed`);
             statusMessage.edit("Summarizing the file...")
             await summarize(text, (summary) => {
               // DM transcription to the author
@@ -99,22 +95,15 @@ client.on("messageCreate", async (message) => {
             deleteFiles([filename, mp3Filename]);
           })
           .on("error", (err) => {
-            console.log("Error during conversion:", err);
+            logError(err, message);
           })
           .run();
       });
-    } catch (error) {
-      console.log(error);
-      const statusMessage = await message.channel.send("There was an error!");
-      message.delete();
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      statusMessage.delete();
+    } catch (err) {
+      logError(err, message);
     }
   } else {
-    const statusMessage = await message.channel.send("Please only send audio files in this channel!")
-    message.delete();
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    statusMessage.delete();
+    logError("Please only send audio files in this channel!", message);
   }
 });
 
@@ -128,12 +117,9 @@ const transcribe = async (audioFilePath, message) => {
   try {
     console.log("start transcription");
     const text = await whisper.transcribe(audioFilePath, "whisper-1");
-    console.log(text);
     return text;
   } catch (err) {
-    console.log(err);
-    message.author.send("There was an error transcribing your file! Sorry :(");
-    message.delete();
+    logError(err, message);
   }
 };
 
@@ -144,7 +130,7 @@ const transcribe = async (audioFilePath, message) => {
 const deleteFiles = (filenames) => {
   filenames.forEach((filename) => {
     fs.unlink(filename, (err) => {
-      if (err) throw err;
+      if (err) logError(err);
       console.log(`${filename} was deleted`);
     });
   });
@@ -195,5 +181,32 @@ const summarize = async (text, callback) => {
 
   callback(response.choices[0].message.content);
 };
+
+const logError = async (err, message) => {
+  console.log(err);
+  if (message) {
+    const statusMessage = await message.channel.send("Please only send audio files in this channel!")
+    message.delete();
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    statusMessage.delete();
+  }
+  //call the webhook url
+  fetch(process.env.LOGGING_WEBHOOK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ content: err })
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+    })
+    .catch(error => {
+      console.error(`Error sending message to webhook`);
+      console.error(error);
+    });
+}
 
 client.login(process.env.TOKEN);
