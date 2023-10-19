@@ -108,7 +108,9 @@ client.on("messageCreate", async (message) => {
   } else if (message.channel.id === process.env.TOC_CHANNEL_ID) {
       const cleanedTOC = tableOfContentsParser(message.content)
       message.delete();
-      message.channel.send(cleanedTOC);
+      const newMessage = await message.channel.send(cleanedTOC);
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      newMessage.delete();
     } else {
     return;
   }
