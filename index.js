@@ -26,82 +26,83 @@ client.once("ready", () => {
 
 client.on("messageCreate", async (message) => {
   // Wait for a second to give the file time to upload
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // await new Promise(resolve => setTimeout(resolve, 1000));
   if (message.author.bot) return;
-  if (
-    message.channel.id === process.env.CHANNEL_ID &&
-    message.attachments.size > 0
-  ) {
-    
+  if (message.channel.id === process.env.CHANNEL_ID) {
+    if (message.attachments.size > 0) {
+      // get the file's URL
+      const file = message.attachments.first()?.url;
+      if (!file) return logError("No file found", message);
 
-    // get the file's URL
-    const file = message.attachments.first()?.url;
-    if (!file) return logError("No file found", message);
-
-    try {
-      const statusMessage = await message.channel.send(
-        "Reading the file! Fetching data..."
-      );
-
-      // fetch the file from the external URL
-      const response = await fetch(file);
-
-      // if there was an error send a message with the status
-      if (!response.ok)
-        return message.channel.send(
-          "There was an error with fetching the file:",
-          response.statusText
+      try {
+        const statusMessage = await message.channel.send(
+          "Reading the file! Fetching data..."
         );
 
-      // get the original filename from the Content-Disposition header
-      const contentDisposition = response.headers.get("Content-Disposition");
-      const filenameMatch = contentDisposition.match(/filename=["]*(.+\..{3})/);
-      const filename = filenameMatch ? filenameMatch[1] : "audio.m4a";
+        // fetch the file from the external URL
+        const response = await fetch(file);
 
-      
+        // if there was an error send a message with the status
+        if (!response.ok)
+          return message.channel.send(
+            "There was an error with fetching the file:",
+            response.statusText
+          );
 
-      // take the response stream and read it to completion
-      const audio = await response.arrayBuffer();
-      fs.writeFile(filename, Buffer.from(audio), async (err) => {
-        if (err) throw err;
-        console.log("The file has been saved!");
-
-        statusMessage.edit("Converting the file to mp3...");
-        // convert to mp3
-        const mp3Filename = convertFilenameToMp3(filename);
-        await ffmpeg()
-          .input(filename)
-          .output(mp3Filename)
-          .on("end", async () => {
-            console.log("Conversion complete");
-            statusMessage.edit("Transcribing the file...")
-            const text = await transcribe(mp3Filename, message);
-
-            console.log(`text has been transcribed`);
-            statusMessage.edit("Summarizing the file...")
-            await summarize(text, (summary) => {
-              // DM transcription to the author
-              message.author.send({
-                content: summary,
-              })
-            });
+        // get the original filename from the Content-Disposition header
+        const contentDisposition = response.headers.get("Content-Disposition");
+        const filenameMatch = contentDisposition.match(/filename=["]*(.+\..{3})/);
+        const filename = filenameMatch ? filenameMatch[1] : "audio.m4a";
 
 
-            message.delete();
-            statusMessage.edit("Done! Find the transcription in your DMs.")
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            statusMessage.delete();
 
-            deleteFiles([filename, mp3Filename]);
-          })
-          .on("error", (err) => {
-            logError(err, message);
-          })
-          .run();
-      });
-    } catch (err) {
-      logError(err, message);
+        // take the response stream and read it to completion
+        const audio = await response.arrayBuffer();
+        fs.writeFile(filename, Buffer.from(audio), async (err) => {
+          if (err) throw err;
+          console.log("The file has been saved!");
+
+          statusMessage.edit("Converting the file to mp3...");
+          // convert to mp3
+          const mp3Filename = convertFilenameToMp3(filename);
+          await ffmpeg()
+            .input(filename)
+            .output(mp3Filename)
+            .on("end", async () => {
+              console.log("Conversion complete");
+              statusMessage.edit("Transcribing the file...")
+              const text = await transcribe(mp3Filename, message);
+
+              console.log(`text has been transcribed`);
+              statusMessage.edit("Summarizing the file...")
+              await summarize(text, (summary) => {
+                // DM transcription to the author
+                message.author.send({
+                  content: summary,
+                })
+              });
+
+
+              message.delete();
+              statusMessage.edit("Done! Find the transcription in your DMs.")
+              await new Promise(resolve => setTimeout(resolve, 5000));
+              statusMessage.delete();
+
+              deleteFiles([filename, mp3Filename]);
+            })
+            .on("error", (err) => {
+              logError(err, message);
+            })
+            .run();
+        });
+      } catch (err) {
+        logError(err, message);
+      }
+    } else {
+      logError("Please attach an audio file to your message", message);
     }
+
+
   } else {
     logError("Please only send audio files in this channel!", message);
   }
