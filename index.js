@@ -104,7 +104,7 @@ client.on("messageCreate", async (message) => {
 
 
   } else {
-    logError("Please only send audio files in this channel!", message);
+    return;
   }
 });
 
