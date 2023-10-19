@@ -4,6 +4,8 @@ const Whisper = require("whisper-nodejs");
 const fs = require("fs");
 const ffmpeg = require("fluent-ffmpeg");
 
+const tableOfContentsParser = require('./tableOfContentsParser');
+
 const OpenAI = require("openai").OpenAI;
 
 const openai = new OpenAI({
@@ -28,7 +30,7 @@ client.on("messageCreate", async (message) => {
   // Wait for a second to give the file time to upload
   // await new Promise(resolve => setTimeout(resolve, 1000));
   if (message.author.bot) return;
-  if (message.channel.id === process.env.CHANNEL_ID) {
+  if (message.channel.id === process.env.WHISPER_CHANNEL_ID) {
     if (message.attachments.size > 0) {
       // get the file's URL
       const file = message.attachments.first()?.url;
@@ -103,7 +105,11 @@ client.on("messageCreate", async (message) => {
     }
 
 
-  } else {
+  } else if (message.channel.id === process.env.TOC_CHANNEL_ID) {
+      const cleanedTOC = tableOfContentsParser(message.content)
+      message.delete();
+      message.channel.send(cleanedTOC);
+    } else {
     return;
   }
 });
