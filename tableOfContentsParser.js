@@ -1,6 +1,6 @@
 const tableOfContentsParser = text => {
     let arrayOfStrings = text.split('\n')
-    const regex = /([A-Z .]+)\d*$/
+    const regex = /([A-Z \[\]\d.]+[A-Z]+)\d*$/
     arrayOfStrings = arrayOfStrings.map(string => {
         const found = string.match(regex)
 	if (found) return found[1];
