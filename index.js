@@ -30,7 +30,8 @@ client.on("messageCreate", async (message) => {
   // Wait for a second to give the file time to upload
   // await new Promise(resolve => setTimeout(resolve, 1000));
   if (message.author.bot) return;
-  if (message.channel.id === process.env.WHISPER_CHANNEL_ID) {
+  if (message.channel.id === process.env.WHISPER_CHANNEL_ID || 
+      message.channel.id === process.env.WHISPER_PRIVATE_CHANNEL_ID) {
     if (message.attachments.size > 0) {
       // get the file's URL
       const file = message.attachments.first()?.url;
