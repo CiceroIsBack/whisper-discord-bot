@@ -8,6 +8,7 @@ const tableOfContentsParser = require('./src/tableOfContentsParser');
 const voiceMessageSummarizer = require('./src/voiceMessageSummarizer');
 const dalle3 = require('./src/dalle3');
 const clear = require('./src/clear');
+const ask = require('./src/ask');
 
 
 
@@ -27,8 +28,8 @@ client.once("ready", () => {
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
-  if (message.content == "!clear") {
-    clear(message);
+  if (message.content == "!clear") { clear(message); 
+  } else if (message.content.startsWith("!ask")) { ask(message);
   } else if (message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || 
       message.channel.id === process.env.PRIVATE_VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID) {
         voiceMessageSummarizer(message);
