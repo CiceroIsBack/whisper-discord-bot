@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const generateImage = async (message) => {
   try {
-    prompt = message.content.replace("!imagine", "");
+    prompt = message.content.replace("!imagine ", "");
     console.log(prompt);
     const infoMessage = await message.channel.send("Starting image generation...")
     const response = await fetch(
