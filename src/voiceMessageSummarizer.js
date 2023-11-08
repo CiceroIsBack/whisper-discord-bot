@@ -24,7 +24,7 @@ const voiceMessageSummarizer = async (message) => {
       const statusMessage = await message.channel.send(
         "Reading the file! Fetching data..."
       );
-      const mp3Filename = await downloadAttachedAudioFile(message)
+      const { mp3Filename, filename }  = await downloadAttachedAudioFile(message)
 
       statusMessage.edit("Transcribing the file...")
       console.log(`mp3Filename: ${mp3Filename}`);

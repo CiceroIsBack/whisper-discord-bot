@@ -1,4 +1,4 @@
-const logError = require('./logError');
+const logError = require("./logError");
 const fs = require("fs");
 const ffmpeg = require("fluent-ffmpeg");
 
@@ -7,59 +7,65 @@ const ffmpeg = require("fluent-ffmpeg");
  * @param {*} message discord.js message object
  */
 const downloadAttachedAudioFile = async (message) => {
-    // get the file's URL
-    const file = message.attachments.first()?.url;
-    if (!file) return logError("No file found", message);
+  // get the file's URL
+  const file = message.attachments.first()?.url;
+  if (!file) return logError("No file found", message);
 
-    try {
-        // fetch the file from the external URL
-        const response = await fetch(file);
-        if (!response.ok) throw new Error('error fetching the file');
+  try {
+    // fetch the file from the external URL
+    const response = await fetch(file);
+    if (!response.ok) throw new Error("error fetching the file");
 
-        // get the original filename from the Content-Disposition header
-        const contentDisposition = response.headers.get("Content-Disposition");
-        const filenameMatch = contentDisposition.match(/filename=["]*(.+\..{3})/);
-        const filename = filenameMatch ? filenameMatch[1] : "audio.m4a";
+    // get the original filename from the Content-Disposition header
+    const contentDisposition = response.headers.get("Content-Disposition");
+    const filenameMatch = contentDisposition.match(/filename=["]*(.+\..{3})/);
+    const filename = filenameMatch ? filenameMatch[1] : "audio.m4a";
 
-        // take the response stream and read it to completion
-        const audio = await response.arrayBuffer();
-        const mp3Filename = await new Promise((resolve, reject) => {
-            fs.writeFile(filename, Buffer.from(audio), async (err) => {
-                if (err) return reject(err);
-                
-                console.log("The file has been saved!");
+    // take the response stream and read it to completion
+    const audio = await response.arrayBuffer();
 
-                
-                // convert to mp3
-                const mp3Filename = convertFilenameToMp3(filename);
-                await ffmpeg()
-                    .input(filename)
-                    .output(mp3Filename)
-                    .on("end", async () => {
-                        console.log("Conversion to mp3 complete");
-                        resolve(mp3Filename);
-                    })
-                    .on("error", (err) => {
-                        console.log("error converting to mp3", err);
-                        reject(err);
-                    })
-            });
-        });
-        console.log('testing');
-        return mp3Filename;
-    } catch (err) {
-        logError(err)
-    }
-}
+    let returnedFilename = "test";
+    // save the file to the local filesystem
+    await new Promise((resolve, reject) => {
+      fs.writeFile(filename, Buffer.from(audio), (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    console.log("file saved!");
+    const mp3Filename = convertFilenameToMp3(filename);
+    console.log('new filename: ', mp3Filename);
+    await new Promise((resolve, reject) => {
+        ffmpeg()
+          .input(filename)
+          .output(mp3Filename)
+          .on("end", async () => {
+            console.log("Conversion to mp3 complete");
+            resolve();
+          })
+          .on("error", (err) => {
+            console.log("error converting to mp3", err);
+            reject(err);
+          })
+          .run();
+      });
+
+    console.log("returnedFilename: ", returnedFilename);
+    return { mp3Filename, filename };
+  } catch (err) {
+    logError(err);
+  }
+};
 
 /**
-*
-* @param {string} filename
-* @returns string
-*/
+ *
+ * @param {string} filename
+ * @returns string
+ */
 const convertFilenameToMp3 = (filename) => {
-    const r = /(.+\.).{3}/;
-    return filename.replace(r, "$1mp3").toUpperCase(); //make it uppercase to avoid naming conflicts
+  console.log("converting filename to mp3");
+  const r = /(.+\.).{3}/;
+  return filename.replace(r, "$1mp3").toUpperCase(); //make it uppercase to avoid naming conflicts
 };
 
 module.exports = downloadAttachedAudioFile;

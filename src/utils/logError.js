@@ -8,17 +8,22 @@ const logError = async (err, message) => {
       await new Promise(resolve => setTimeout(resolve, 5000));
       statusMessage.delete();
     }
+
+
     //call the webhook url
     fetch(process.env.LOGGING_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ content: err })
-    })
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: `Error: ${err}`,
+        }),
+      })
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
+          
         }
       })
       .catch(error => {
