@@ -30,16 +30,15 @@ client.on("messageCreate", async (message) => {
     ask(message); // call GPT-4
   } else if (message.content.startsWith("!toc")) {
     tableOfContentsParser(message); // table of contents parser
+  } else if (message.content.startsWith("!imagine")) {
+    dalle3(message); //dalle3 imagine generation
   } else if (
     message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || // voice message summarizer
     message.channel.id ===
       process.env.PRIVATE_VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID
   ) {
     voiceMessageSummarizer(message);
-  } else if (message.channel.id === process.env.DALLE3_CHANNEL_ID) {
-    // dalle3 image generation
-    dalle3(message);
-  } else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
+  }  else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
     chat(message);
   } else {
     return;

@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const generateImage = async (message) => {
   try {
+    prompt = message.content.replace("!imagine", "");
+    console.log(prompt);
     const infoMessage = await message.channel.send("Starting image generation...")
     const response = await fetch(
       "https://api.openai.com/v1/images/generations",
@@ -15,7 +17,7 @@ const generateImage = async (message) => {
         },
         body: JSON.stringify({
           model: "dall-e-3",
-          prompt: message.content,
+          prompt,
           n: 1,
           size: "1024x1024",
         }),
