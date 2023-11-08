@@ -1,18 +1,13 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 require("dotenv").config();
 
+const tableOfContentsParser = require("./src/tableOfContentsParser");
 
-const tableOfContentsParser = require('./src/tableOfContentsParser');
-
-// channels
-const voiceMessageSummarizer = require('./src/voiceMessageSummarizer');
-const dalle3 = require('./src/dalle3');
-const clear = require('./src/clear');
-const ask = require('./src/ask');
-
-
-
-
+// channels / commands
+const voiceMessageSummarizer = require("./src/voiceMessageSummarizer");
+const dalle3 = require("./src/dalle3");
+const clear = require("./src/clear");
+const ask = require("./src/ask");
 
 const client = new Client({
   intents: [
@@ -28,15 +23,21 @@ client.once("ready", () => {
 
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
-  if (message.content == "!clear") { clear(message); 
-  } else if (message.content.startsWith("!ask")) { ask(message);
-  } else if (message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || 
-      message.channel.id === process.env.PRIVATE_VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID) {
-        voiceMessageSummarizer(message);
-  } else if (message.channel.id === process.env.TABLE_OF_CONTENTS_PARSER_CHANNEL_ID) {
-      tableOfContentsParser(message)
+  if (message.content == "!clear") {
+    clear(message); //clear all messages in channel
+  } else if (message.content.startsWith("!ask")) {
+    ask(message); // call GPT-4
+  } else if (message.content.startsWith("!toc")) {
+    tableOfContentsParser(message); // table of contents parser
+  } else if (
+    message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || // voice message summarizer
+    message.channel.id ===
+      process.env.PRIVATE_VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID
+  ) {
+    voiceMessageSummarizer(message);
   } else if (message.channel.id === process.env.DALLE3_CHANNEL_ID) {
-      dalle3(message);
+    // dalle3 image generation
+    dalle3(message);
   } else {
     return;
   }

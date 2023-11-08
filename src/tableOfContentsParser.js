@@ -1,5 +1,6 @@
+const removeCommandPrefix = require('./utils/removeCommandPrefix');
 const tableOfContentsParser = async (message) => {
-    let text = message.content;
+    let text = removeCommandPrefix(message.content);
     let arrayOfStrings = text.split('\n')
     const regex = /([A-Z \[\]\d.]+[A-Z]+)\d*$/
     arrayOfStrings = arrayOfStrings.map(string => {
