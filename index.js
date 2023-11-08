@@ -8,6 +8,7 @@ const voiceMessageSummarizer = require("./src/voiceMessageSummarizer");
 const dalle3 = require("./src/dalle3");
 const clear = require("./src/clear");
 const ask = require("./src/ask");
+const chat = require('./src/chat')
 
 const client = new Client({
   intents: [
@@ -38,6 +39,8 @@ client.on("messageCreate", async (message) => {
   } else if (message.channel.id === process.env.DALLE3_CHANNEL_ID) {
     // dalle3 image generation
     dalle3(message);
+  } else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
+    chat(message);
   } else {
     return;
   }
