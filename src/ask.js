@@ -6,7 +6,7 @@ const ask = async (message) => {
   try {
     const infoMessage = await message.channel.send("Loading...")
     const response = await fetch(
-      "https://api.openai.com/v1/chat/completionss",
+      "https://api.openai.com/v1/chat/completions",
       {
         method: "POST",
         headers: {
@@ -15,10 +15,10 @@ const ask = async (message) => {
         },
         body: JSON.stringify({
           model: "gpt-4-1106-preview",
-          messages: {
+          messages: [{
             "role": "user",
             content: message.content
-          }
+          }]
         }),
       }
     );
