@@ -33,6 +33,18 @@ const chat = async (message) => {
     const data = await response.json();
     const newMessage = data.choices[0].message.content;
 
+    // split newMessage after 1900 characters, if newMessage is more than 2000 long
+    if (newMessage.length > 1900) {
+      const newMessage1 = newMessage.substring(0, 1900);
+      const newMessage2 = newMessage.substring(1900, newMessage.length);
+      message.channel.send(newMessage1);
+      message.channel.send(newMessage2);
+    } else {
+      message.channel.send(newMessage);
+    }
+
+
+
     infoMessage.delete();
     message.channel.send(newMessage);
     

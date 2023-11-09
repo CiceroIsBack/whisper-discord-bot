@@ -1,4 +1,5 @@
 const logError = require("./utils/logError");
+const fs = require("fs");
 
 require("dotenv").config();
 
@@ -26,10 +27,20 @@ const generateImage = async (message) => {
     const data = await response.json();
     const { revised_prompt, url} = data.data[0];
 
-    infoMessage.delete();
-    message.channel.send(`**Revised prompt:** ${revised_prompt}\n**Cost:** $0.04`);
+    //download the imagine in the url
+    const imageResponse = await fetch(url);
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const filename = "image.png";
+    await new Promise((resolve, reject) => {
+      fs.writeFile(filename, Buffer.from(imageBuffer), (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
 
-    message.channel.send(url);
+    
+    await message.channel.send({content: `**Revised prompt:** ${revised_prompt}`, files: [{ attachment: filename }]});
+    infoMessage.delete();
     
   } catch (err) {
     logError(err, message);
