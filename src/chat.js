@@ -46,7 +46,7 @@ const chat = async (message) => {
 
 
     infoMessage.delete();
-    message.channel.send(newMessage);
+    // message.channel.send(newMessage);
     
   } catch (err) {
     logError(err, message);
