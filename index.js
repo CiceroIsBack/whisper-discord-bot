@@ -8,7 +8,8 @@ const voiceMessageSummarizer = require("./src/voiceMessageSummarizer");
 const dalle3 = require("./src/dalle3");
 const clear = require("./src/clear");
 const ask = require("./src/ask");
-const chat = require('./src/chat')
+const chat = require("./src/chat");
+const frink = require("./src/frink");
 
 const client = new Client({
   intents: [
@@ -32,13 +33,15 @@ client.on("messageCreate", async (message) => {
     tableOfContentsParser(message); // table of contents parser
   } else if (message.content.startsWith("!imagine")) {
     dalle3(message); //dalle3 imagine generation
+  } else if (message.content.startsWith("!frink")) {
+    frink(message);
   } else if (
     message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || // voice message summarizer
     message.channel.id ===
       process.env.PRIVATE_VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID
   ) {
     voiceMessageSummarizer(message);
-  }  else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
+  } else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
     chat(message);
   } else {
     return;
