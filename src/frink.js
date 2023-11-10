@@ -1,4 +1,5 @@
 const logError = require("./utils/logError");
+const dataFile = "./src/utils/frink-data-file.txt";
 
 const frink = async (message) => {
   try {
@@ -15,7 +16,27 @@ const frink = async (message) => {
         logError(stderr, message);
         return;
       }
+      
       infoMessage.edit(stdout);
+
+      const regex = /Warning: undefined symbol "(\w+)"/
+      // search stdout for error regex, and if found, search the match group in datafile
+      const match = stdout.match(regex);
+      if (match) {
+        console.log('yes match')
+        const fs = require("fs");
+        const data = fs.readFileSync(dataFile, "utf8");
+        console.log(match);
+        const dataRegex = new RegExp(`.*${match[1]}.*`, "gm");
+        const dataMatch = data.match(dataRegex);
+        console.log(dataMatch);
+        if (dataMatch) {
+          const lookupURL = `https://frinklang.org/fsp/frink.fsp?lookup=${match[1]}`;
+          infoMessage.edit(`${stdout}\n**Potentially Helpful Lines from the Data File**\n${dataMatch.join("\n")}\n\n**More Info:** ${lookupURL}`);
+        }
+      }
+
+
     });
     
   } catch (err) {

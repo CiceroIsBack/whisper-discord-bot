@@ -10,6 +10,7 @@ const clear = require("./src/clear");
 const ask = require("./src/ask");
 const chat = require("./src/chat");
 const frink = require("./src/frink");
+const fast = require('./src/fast');
 
 const client = new Client({
   intents: [
@@ -26,15 +27,17 @@ client.once("ready", () => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (message.content == "!clear") {
-    clear(message); //clear all messages in channel
+    clear(message); 
   } else if (message.content.startsWith("!ask")) {
-    ask(message); // call GPT-4
+    ask(message); 
   } else if (message.content.startsWith("!toc")) {
-    tableOfContentsParser(message); // table of contents parser
+    tableOfContentsParser(message); 
   } else if (message.content.startsWith("!imagine")) {
-    dalle3(message); //dalle3 imagine generation
-  } else if (message.content.startsWith("!frink")) {
+    dalle3(message); 
+  }  else if (message.content.startsWith("!frink")) {
     frink(message);
+  } else if (message.content.startsWith("!fast")) {
+    fast(message);
   } else if (
     message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || // voice message summarizer
     message.channel.id ===
