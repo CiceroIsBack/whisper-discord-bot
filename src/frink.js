@@ -32,7 +32,7 @@ const frink = async (message) => {
         console.log(dataMatch);
         if (dataMatch) {
           const lookupURL = `https://frinklang.org/fsp/frink.fsp?lookup=${match[1]}`;
-          infoMessage.edit(`${stdout}\n**Potentially Helpful Lines from the Data File**\n${dataMatch.join("\n")}\n\n**More Info:** ${lookupURL}`);
+          infoMessage.edit(`${stdout}\n**Potentially Helpful Lines from the Data File**\n${dataMatch.join("\n")}\n\n**More Info:** ${lookupURL}\nGeneral Docs: <https://frinklang.org>`);
         }
       }
 
