@@ -5,6 +5,7 @@ const tableOfContentsParser = require("./src/tableOfContentsParser");
 
 // channels / commands
 const voiceMessageSummarizer = require("./src/voiceMessageSummarizer");
+const audioTranscriber = require("./src/audioTranscriber");
 const dalle3 = require("./src/dalle3");
 const clear = require("./src/clear");
 const ask = require("./src/ask");
@@ -46,6 +47,8 @@ client.on("messageCreate", async (message) => {
     voiceMessageSummarizer(message);
   } else if (message.channel.id === process.env.CHAT_CHANNEL_ID) {
     chat(message);
+  } else if (message.channel.id === process.env.TRANSCRIBE_CHANNEL_ID) {
+    audioTranscriber(message);
   } else {
     return;
   }
