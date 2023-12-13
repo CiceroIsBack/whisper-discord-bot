@@ -12,6 +12,7 @@ const ask = require("./src/ask");
 const chat = require("./src/chat");
 const frink = require("./src/frink");
 const fast = require('./src/fast');
+const sub = require('./src/sub');
 
 const client = new Client({
   intents: [
@@ -39,6 +40,8 @@ client.on("messageCreate", async (message) => {
     frink(message);
   } else if (message.content.startsWith("!fast")) {
     fast(message);
+  } else if (message.content.startsWith("!sub")) {
+    sub(message);
   } else if (
     message.channel.id === process.env.VOICE_MESSAGE_SUMMARIZER_CHANNEL_ID || // voice message summarizer
     message.channel.id ===
