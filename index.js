@@ -13,6 +13,7 @@ const chat = require("./src/chat");
 const frink = require("./src/frink");
 const fast = require('./src/fast');
 const sub = require('./src/sub');
+const dictionary = require('./src/dictionary');
 
 const client = new Client({
   intents: [
@@ -52,6 +53,8 @@ client.on("messageCreate", async (message) => {
     chat(message);
   } else if (message.channel.id === process.env.TRANSCRIBE_CHANNEL_ID) {
     audioTranscriber(message);
+  } else if (message.channel.id === process.env.DICTIONARY_CHANNEL_ID) {
+    dictionary(message);
   } else {
     return;
   }
