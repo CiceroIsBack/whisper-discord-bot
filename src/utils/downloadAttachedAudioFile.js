@@ -35,7 +35,8 @@ const downloadAttachedAudioFile = async (message) => {
     console.log("file saved!");
     const mp3Filename = convertFilenameToMp3(filename);
     console.log('new filename: ', mp3Filename);
-    await new Promise((resolve, reject) => {
+    if (!filename.match('.mp3')) {
+      await new Promise((resolve, reject) => {
         ffmpeg()
           .input(filename)
           .output(mp3Filename)
@@ -49,6 +50,8 @@ const downloadAttachedAudioFile = async (message) => {
           })
           .run();
       });
+    }
+    
 
     console.log("returnedFilename: ", returnedFilename);
     return { mp3Filename, filename };
