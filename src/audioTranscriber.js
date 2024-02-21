@@ -38,7 +38,6 @@ const audioTranscriber = async (message) => {
       //     content: partialMessage
       //   })
       // })
-      console.log(text);
       await processText(text, (processedText) => {
         // DM transcription to the author
         const messages = splitMessage(processedText);
@@ -49,12 +48,9 @@ const audioTranscriber = async (message) => {
         });
       });
 
-
       message.delete();
       statusMessage.delete();
 
-      
-      
       await new Promise(resolve => setTimeout(resolve, 5000));
 
       deleteFiles([filename, mp3Filename]);
@@ -111,7 +107,7 @@ const processText = async (text, callback) => {
       {
         "role": "system",
         "content": systemPrompt,
-      },{
+      }, {
         "role": "user",
         "content": text
       }
