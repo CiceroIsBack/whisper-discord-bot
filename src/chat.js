@@ -1,10 +1,12 @@
 const logError = require("./utils/logError");
+const fs = require("fs");
 
 require("dotenv").config();
+const gptResponse = require("./utils/gpt");
+const anthropicResponse = require("./utils/anthropic");
 
 const chat = async (message) => {
   try {
-    const infoMessage = await message.channel.send("Loading...")
     const channel = message.channel;
     let chatMessages = [];
     await channel.messages.fetch({ limit: 100 }).then(async (messages) => {
@@ -16,22 +18,18 @@ const chat = async (message) => {
       })
     chatMessages = chatMessages.reverse();
 
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o",
-          messages: chatMessages
-        }),
-      }
-    );
-    const data = await response.json();
-    const newMessage = data.choices[0].message.content;
+    const infoMessage = await message.channel.send("Loading...")
+
+    let {chatbotToUse} = JSON.parse(fs.readFileSync("preferences.json"));
+
+    let newMessage;
+    if (chatbotToUse === "gpt") {
+      newMessage = await gptResponse(chatMessages);
+    } else if (chatbotToUse === "anthropic") {
+      newMessage = await anthropicResponse(chatMessages);
+    } else {
+      throw new Error("Invalid chatbot to use. Please set the CHATBOT_TO_USE environment variable to 'gpt' or 'anthropic'");
+    }
 
     // split newMessage after 1900 characters, if newMessage is more than 2000 long
     if (newMessage.length > 1900) {

@@ -13,6 +13,7 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
+        "@anthropic-ai/sdk": "^0.21.0",
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.2",
         "fluent-ffmpeg": "^2.1.2",
