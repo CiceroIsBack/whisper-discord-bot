@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
 
 const anthropicResponse = async (chatMessages) => {
   const msg = await anthropic.messages.create({
-    model: "claude-3-opus-20240229",
+    model: "claude-3-5-sonnet-20240620",
     max_tokens: 1000,
     temperature: 0.7,
     messages: chatMessages
